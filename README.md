@@ -1,54 +1,169 @@
-# West Tech: Contain the AI — Incident Response Writeup
+# CTF Labs — Walkthroughs & Notes
 
-> **Category:** Incident Response · Digital Forensics · AI-Assisted Investigation
-> **Difficulty:** Medium
-> 📄 **Full walkthrough with screenshots and commands:** [`West_Tech_Writeup.pdf`](./West_Tech_Writeup.pdf)
+A personal logbook of every Capture The Flag (CTF) lab I work through on my path into cybersecurity. Each lab gets its own write-up: what I tried, what failed, what worked, and what I learned. The point isn't to collect flags — it's to build the muscle memory of an offensive security mindset and have a public record of progress I can point to.
 
 ---
 
-## Scenario
+## 👋 About Me
 
-A senior researcher at West Tech (a classified defence contractor) had their workstation compromised. A ransom note on the desktop demanded **0.853 BTC** and taunted that the on-host AI assistant had been the leak source. The job: investigate the intrusion, recover the encrypted project files, and identify the flag — without trusting the AI blindly.
+I'm **Chamberlain**, an MSc Cyber Security student at the **University of Roehampton** based in London. I'm transitioning into cybersecurity from an IT support background, with a three-year plan that moves through cloud engineering into a security specialism (Red Team / SOC / AppSec — still narrowing it down).
 
----
-
-## Approach
-
-1. **SSH'd in** to the compromised workstation as `o.deer`.
-2. **Read the ransom note** (`pwned.txt`) — confirmed the AI assistant was the leak vector.
-3. **Triaged PCAPs** in `~/Documents/pcap_dumps/`. Every capture was **198 bytes** except one: `session_4444_dump.pcap` at **2262 bytes** — the attacker's reverse shell session (port 4444 = Metasploit default).
-4. **Reassembled the anomalous PCAP** with the AI's tool. The dump contained the attacker's own working notes — including the archive password `westtechvictim1`.
-5. **Decrypted** `westtech_projects_encrypted.zip`, decoded the base64 flags file, and used the AI's `liberty_prime` tool to identify the genuine flag among hundreds of decoys.
-
-📄 Full commands and step-by-step terminal output are in the **[PDF writeup](./West_Tech_Writeup.pdf)**.
+My coursework so far has covered digital forensics, penetration testing, identity & Zero Trust, and ML for security — but coursework alone doesn't build the reflexes that hiring managers want to see. This repo is the practical side of the journey.
 
 ---
 
-## Flag
+## 🎯 Why this repo exists
+
+1. **Reinforce learning** — writing a lab up forces me to actually understand it, not just copy commands.
+2. **Build a portfolio** — a public, dated, searchable record of skills for recruiters and hiring managers.
+3. **Help others** — if someone gets stuck where I got stuck, my notes might unblock them.
+4. **Track progress** — looking back at early write-ups vs recent ones is the clearest evidence of growth.
+
+---
+
+## 🧪 Platforms Covered
+
+Labs in this repo come from (and will be tagged by) the following platforms:
+
+- **TryHackMe** — guided learning paths, beginner-friendly rooms
+- **Hack The Box** — machines, Starting Point, Academy modules
+- **PortSwigger Web Security Academy** — web app vulnerabilities
+- **VulnHub** — boot-to-root VMs
+- **PicoCTF** — beginner-friendly Jeopardy-style challenges
+- **OverTheWire** — wargames (Bandit, Natas, Leviathan, etc.)
+- **Root Me** — short, focused challenges
+- **CTFtime events** — live competitions when I can join
+
+---
+
+## 📂 Repo Structure
 
 ```
-thm{23,82,20,17,53}
+ctf-labs/
+├── README.md                          ← you are here
+├── tryhackme/
+│   ├── <room-name>/
+│   │   ├── README.md                  ← the write-up
+│   │   ├── screenshots/
+│   │   └── artifacts/                 ← payloads, scripts, exfiltrated files
+│   └── ...
+├── hackthebox/
+│   ├── <machine-name>/
+│   │   └── ...
+├── portswigger/
+│   └── <vulnerability-class>/
+│       └── <lab-name>/
+├── vulnhub/
+├── picoctf/
+├── overthewire/
+├── ctf-events/
+│   └── <event-name>-<year>/
+└── tools-and-cheatsheets/
+    ├── recon.md
+    ├── web.md
+    ├── privesc-linux.md
+    ├── privesc-windows.md
+    └── ...
 ```
+
+Each lab folder is self-contained — you can land on it from a search engine and get the full picture without bouncing around.
 
 ---
 
-## Takeaways
+## 🗂️ Categories Tracked
 
-- **AI assistants are an attack surface.** A helpful chatbot with broad filesystem access and weak guardrails is functionally a privileged insider with a memory leak.
-- **File-size outliers tell stories.** A single 2262-byte capture in a sea of 198-byte placeholders was the entire investigation in one `ls -la`.
-- **The attacker's own opsec mistakes** (forgetting that the reverse shell session itself got captured) handed defenders the password.
-- **Defence-in-depth matters.** The chain failed because one layer — the AI — was over-trusted and under-restricted.
+Every write-up is tagged with one or more of these so the repo stays searchable:
+
+| Category | Examples |
+|---|---|
+| 🌐 Web Exploitation | SQLi, XSS, SSRF, IDOR, auth bypass, deserialization |
+| 🐧 Linux Privilege Escalation | SUID, sudo abuse, cron, capabilities, kernel exploits |
+| 🪟 Windows Privilege Escalation | Token impersonation, service misconfig, AD abuse |
+| 🔍 Reconnaissance | nmap, gobuster, ffuf, subdomain enum, OSINT |
+| 🔐 Cryptography | Classical ciphers, RSA attacks, hash cracking |
+| 🧪 Reverse Engineering | Static/dynamic analysis, Ghidra, radare2, gdb |
+| 💥 Binary Exploitation | Buffer overflows, ROP, format strings |
+| 🕵️ Digital Forensics | Memory analysis (Volatility), disk imaging, registry, network captures |
+| 📡 Network | Packet capture analysis, protocol abuse, pivoting |
+| ☁️ Cloud Security | AWS/Azure misconfigs, IAM abuse, container escapes |
+| 🏛️ Active Directory | Kerberoasting, AS-REP, BloodHound paths, DCSync |
+| 🤖 OSINT | Geolocation, social media, metadata, public records |
 
 ---
 
-## Repository Layout
+## 📝 Write-Up Format
 
+Every lab follows the same template so they're easy to compare and skim:
+
+```markdown
+# <Lab Name> — <Platform>
+
+**Difficulty:** Easy / Medium / Hard
+**Date completed:** YYYY-MM-DD
+**Tags:** #web #sqli #linux-privesc
+**Skills practised:** ...
+
+## TL;DR
+One-paragraph summary of the attack path.
+
+## Reconnaissance
+Commands run, what they returned, what stood out.
+
+## Enumeration
+Deeper digging — directory busting, service versions, hidden endpoints.
+
+## Exploitation
+The actual attack, step by step, with payloads and screenshots.
+
+## Privilege Escalation
+How I went from foothold to root/admin/SYSTEM.
+
+## Flags
+- User flag: ✅
+- Root flag: ✅
+
+## What I Learned
+The bit I want to remember six months from now.
+
+## Mistakes & Dead Ends
+Honest notes on what I tried that didn't work — useful for future me.
+
+## Defender's View
+How this would have been prevented or detected. Ties exploitation back to blue-team thinking.
 ```
-.
-├── README.md                  ← this file (summary)
-└── West_Tech_Writeup.pdf      ← full step-by-step walkthrough
-```
+
+The **Defender's View** section is non-negotiable — understanding how to break things only matters if it informs how to defend them.
 
 ---
 
-*Writeup by Freedom &middot; MSc Cyber Security, University of Roehampton*
+## 🛠️ My Working Toolkit
+
+Tools I lean on most often (a non-exhaustive list, updated as I go):
+
+**Recon & Enumeration** — `nmap`, `rustscan`, `gobuster`, `ffuf`, `feroxbuster`, `nikto`, `whatweb`, `wpscan`
+
+**Web** — Burp Suite Community, `sqlmap`, browser DevTools, `curl`, custom Python with `requests`
+
+**Exploitation** — `metasploit`, `msfvenom`, `searchsploit`, manual exploit dev
+
+**Post-Exploitation / PrivEsc** — `linpeas`, `winpeas`, `pspy`, `BloodHound`, `mimikatz`, `chisel`
+
+**Forensics & RE** — Autopsy, FTK Imager, Volatility 3, Ghidra, `strings`, `binwalk`
+
+**Cracking** — `hashcat`, `john`, `hydra`
+
+**Environment** — Kali Linux VM, occasional ParrotOS, custom tmux + zsh config
+
+
+## 🎓 How This Connects to My Career Path
+
+This repo is one pillar of a wider three-year transition plan:
+
+- **Year 1 — Foundations:** IT support fundamentals, CompTIA A+/Network+, regular CTF practice (this repo).
+- **Year 2 — Cloud:** AWS SAA or AZ-104, Security+, cloud-focused CTFs and labs (CloudGoat, flaws.cloud).
+- **Year 3 — Security Specialisation:** OSCP / CySA+ / AWS Security Specialty, harder boxes, original research and reports.
+
+The labs in this repo evolve with that arc — expect more cloud and AD-heavy content over time.
+
+---
+
